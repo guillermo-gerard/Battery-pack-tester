@@ -27,8 +27,7 @@ NOTES:
 #include "LanguageOptions.h"
 #include "StringProvider.h"
 #include "Commands.h"
-
-#define LANGUAGE SPANISH
+#include "L10nStringDefinitions.h"
 
 #define SDA_PORT PORTC
 #define SDA_PIN 4
@@ -37,24 +36,23 @@ NOTES:
 #define SCL_PIN 5
 
 #define I2C_SLOWMODE 1
-
-
-
 #define bufferLen 32
 
 // standard I2C address for Smart Battery packs
 byte deviceAddress = 11;
 
+//this should be included here, after the port and pin definitions
 #include <SoftI2CMaster.h>
 
+//You can change the language here. Available translations: English, Spanish
 StringProvider stringProvider(LanguageOption::ENGLISH);
-StringProvider stringProvider2(LanguageOption::SPANISH);
-
 uint8_t i2cBuffer[bufferLen];
+char buffer[_maxStringLengh];
 
 void scan();
 uint8_t i2c_smbus_read_block ( uint8_t command, uint8_t* blockBuffer, uint8_t blockBufferLen );
 int fetchWord(byte func);
+void print(StringKeys key);
 
 void setup()
 {
@@ -71,34 +69,30 @@ void loop()
 {
   uint8_t length_read = 0;
 
-  Serial.println(stringProvider.GetLocalizedString("1"));
-  Serial.println(stringProvider2.GetLocalizedString("1"));
-  delay(10000);
-  return;
-
-
-  Serial.print("Manufacturer Name: ");
+  print(StringKeys::MANUFACTURER);
   length_read = i2c_smbus_read_block(MFG_NAME, i2cBuffer, bufferLen);
   Serial.write(i2cBuffer, length_read);
   Serial.println("");
-
-  Serial.print("Device Name: ");
+  
+  print(StringKeys::DEVICE);
   length_read = i2c_smbus_read_block(DEV_NAME, i2cBuffer, bufferLen);
   Serial.write(i2cBuffer, length_read);
   Serial.println("");
-
-  Serial.print("Chemistry ");
+  
+  print(StringKeys::CHEMISTRY);
   length_read = i2c_smbus_read_block(CELL_CHEM, i2cBuffer, bufferLen);
   Serial.write(i2cBuffer, length_read);
   Serial.println("");
-
-  Serial.print("Design Capacity: " );
+  
+  print(StringKeys::DESIGNCAPACITY);
   Serial.println(fetchWord(DESIGN_CAPACITY));
   
-  Serial.print("Design Voltage: " );
+  print(StringKeys::DESIGNVOLTAGE);
   Serial.println(fetchWord(DESIGN_VOLTAGE));
   
-  String formatted_date = "Manufacture Date (Y-M-D): ";
+  stringProvider.GetLocalizedString(StringKeys::MANUFACTUREDATE, buffer);
+  String formatted_date = buffer;
+  //formatted_date.trim();
   int mdate = fetchWord(MFG_DATE);
   int mday = B00011111 & mdate;
   int mmonth = mdate>>5 & B00001111;
@@ -110,68 +104,72 @@ void loop()
   formatted_date += mday;
   Serial.println(formatted_date);
 
-  Serial.print("Serial Number: ");
+  print(StringKeys::SERIALNUMBER);
   Serial.println(fetchWord(SERIAL_NUM));
 
-  Serial.print("Specification Info: ");
+  print(StringKeys::SPECIFICATIONINFO);
   Serial.println(fetchWord(SPEC_INFO));
  
-  Serial.print("Cycle Count: " );
+  print(StringKeys::CYCLECOUNT);
   Serial.println(fetchWord(CYCLE_COUNT));
   
-  Serial.print("Voltage: ");
+  print(StringKeys::CURRENTVOLTAGE);
   Serial.println((float)fetchWord(VOLTAGE)/1000);
 
-  Serial.print("Full Charge Capacity: " );
+  print(StringKeys::FULLCHARGECAPACITY);
   Serial.println(fetchWord(FULL_CHARGE_CAPACITY));
   
-  Serial.print("Remaining Capacity: " );
+  print(StringKeys::REMAININGCAPACITY);
   Serial.println(fetchWord(REMAINING_CAPACITY));
 
-  Serial.print("Relative Charge(%): ");
+  print(StringKeys::RELATIVECHARGE);
   Serial.println(fetchWord(RELATIVE_SOC));
   
-  Serial.print("Absolute Charge(%): ");
+  print(StringKeys::ABSOLUTECHARGE);
   Serial.println(fetchWord(ABSOLUTE_SOC));
   
-  Serial.print("Minutes remaining for full charge: ");
+  print(StringKeys::MINUTESREMAININGTOFULLCHARGE);
   Serial.println(fetchWord(TIME_TO_FULL));
-
   // These aren't part of the standard, but work with some packs.
   // They don't work with the Lenovo and Dell packs we've tested
-  Serial.print("Cell 1 Voltage: ");
+  print(StringKeys::CELL1V); 
   Serial.println(fetchWord(CELL1_VOLTAGE));
-  Serial.print("Cell 2 Voltage: ");
+  print(StringKeys::CELL2V); 
   Serial.println(fetchWord(CELL2_VOLTAGE));
-  Serial.print("Cell 3 Voltage: ");
+  print(StringKeys::CELL3V); 
   Serial.println(fetchWord(CELL3_VOLTAGE));
-  Serial.print("Cell 4 Voltage: ");
+  print(StringKeys::CELL4V); 
   Serial.println(fetchWord(CELL4_VOLTAGE));
   
-  Serial.print("State of Health: ");
+  print(StringKeys::STATEHEALTH); 
   Serial.println(fetchWord(STATE_OF_HEALTH));
 
-  Serial.print("Battery Mode (BIN): 0b");
+  print(StringKeys::BATMODE); 
   Serial.println(fetchWord(BATTERY_MODE),BIN);
 
-  Serial.print("Battery Status (BIN): 0b");
+  print(StringKeys::BATSTATUS); 
   Serial.println(fetchWord(BATTERY_STATUS),BIN);
   
-  Serial.print("Charging Current: ");
+  print(StringKeys::CHARGINGCURRENT); 
   Serial.println(fetchWord(CHARGING_CURRENT));
   
-  Serial.print("Charging Voltage: ");
+  print(StringKeys::CHARGINGV); 
   Serial.println(fetchWord(CHARGING_VOLTAGE));
 
-  Serial.print("Temp: ");
+  print(StringKeys::TEMP); 
   unsigned int tempk = fetchWord(TEMPERATURE);
   Serial.println((float)tempk/10.0-273.15);
 
-  Serial.print("Current (mA): " );
+  print(StringKeys::CURRENTMA); 
   Serial.println(fetchWord(CURRENT));
   
   Serial.println(".");
   delay(10000);
+}
+
+void print(StringKeys key){
+  stringProvider.GetLocalizedString(key, buffer);
+  Serial.print(buffer);
 }
 
 int fetchWord(byte func)

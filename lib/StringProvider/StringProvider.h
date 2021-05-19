@@ -2,13 +2,15 @@
 #define _string_provider_h
 
 #include "LanguageOptions.h"
+#include "L10nStringDefinitions.h"
 #include <stdint.h>
 
 class StringProvider{
     public:
 
     StringProvider(LanguageOption lang);
-    const char * GetLocalizedString(const char* key);
+    void SetLanguage(LanguageOption option);
+    void GetLocalizedString(StringKeys key, char * _buffer);
 
     private:
     LanguageOption _lang;

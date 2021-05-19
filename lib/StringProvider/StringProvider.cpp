@@ -1,28 +1,19 @@
 #include "StringProvider.h"
-#include "Keys.h"
+#include "L10nStringDefinitions.h"
 #include <string.h>
 #include <Arduino.h>
+#include <avr/pgmspace.h>
 
 StringProvider::StringProvider(LanguageOption lang){
-    _lang = lang;
-    
-    _localizedKeyStartingIndex = _lang == LanguageOption::SPANISH ? 0 : _numberOfStrings;
-    Serial.println(_numberOfStrings);
+    this->SetLanguage(lang); 
 }
 
-const char * StringProvider::GetLocalizedString(const char* key){
+void StringProvider::SetLanguage(LanguageOption option){
+    _lang = option;
+    _localizedKeyStartingIndex = _lang == LanguageOption::ENGLISH ? 0 : ((uint8_t)StringKeys::NUMBER_OF_STRINGS);
+}
 
-    Serial.print("key: ");
-    Serial.println(key);
-
-    for(int i = 0; i < _numberOfStrings; ++i)
-    {
-        Serial.print("_key[i]: ");
-        Serial.println(_keys[i]);
-        if(!strcmp(_keys[i], key))
-        {
-            return _strings[_localizedKeyStartingIndex + i]; 
-        }
-    }
-    return "string not found";
+//const char * 
+void StringProvider::GetLocalizedString(StringKeys key, char * _buffer){
+    strcpy_P(_buffer, (char *)pgm_read_word(&(_strings[_localizedKeyStartingIndex + (uint8_t)key])));
 }
