@@ -94,3 +94,19 @@ Basado en [este proyecto](https://powercartel.com/projects/packprobe/), cutomiza
   Los valores de arriba se pueden encontrar en diagramas como este:
   
   ![Nano pinout](/img/nano-pinout.png)
+
+## Update:
+
+ENGLISH: I've added an overengineered solution to localization. Why? because I can do it and I've always wanted to try doing something like that for microcontrollers.  
+Now you can choose english or spanish just by changing the language in the line:
+```
+StringProvider stringProvider(LanguageOption::ENGLISH);
+```
+You can use this as a library on your own project if you want. Take a look at the StringProvider class, the LanguageOptions.h where you can define new languages, and the L10nStringDefinitions.h where you can put your own strings and translations.  
+
+SPANISH: Agregue una solucion para poder cambiar el lenguaje en el que se reportan las caracteristicas del pack. Por que? Porque puedo y siempre quise probar hacer algo asi para microcontroladores.  
+Ahora puedes elegir ingles o español cambiando el lenguaje en la linea: 
+```
+StringProvider stringProvider(LanguageOption::ENGLISH);
+```
+Tambien puedes usar la libreria de localizacion en tu propio proyecto. Mira la clase StringProvider. En LanguageOptions.h puedes agregar lenguajes si lo deseas y en L10nStringDefinitions.h tienes que definir tus propios strings.  
